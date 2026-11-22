@@ -1,9 +1,16 @@
 
-$user_object_id = "f7bb01c4-2b2b-4b76-b067-adc102c381de"
-$subid = $env:AZURE_SUBSCRIPTION_ID
-if ([string]::IsNullOrWhiteSpace($subid)) {
-    throw "AZURE_SUBSCRIPTION_ID is not set. Set this environment variable to the Azure subscription ID before running this script."
+function Get-RequiredEnvVar {
+    param([string]$Name)
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        throw "$Name is not set. Set this environment variable before running this script."
+    }
+    return $value
 }
+
+$user_object_id = Get-RequiredEnvVar -Name "AZURE_USER_OBJECT_ID"
+$subid = Get-RequiredEnvVar -Name "AZURE_SUBSCRIPTION_ID"
+$management_group_id = Get-RequiredEnvVar -Name "AZURE_MANAGEMENT_GROUP_ID"
 
 #Login 
 az login
@@ -16,7 +23,7 @@ az login
 
 
 #Create Azure Policy Exemption to allow owner role"
-az policy exemption create --name "Allow Owner for Azure Decom Test AZ CLI" --display-name "Allow Owner For Azure Decom Test AZ CLI" --policy-assignment "/providers/Microsoft.Management/managementGroups/a4454629-85ac-4c26-b6be-438709073c2a/providers/Microsoft.Authorization/policyAssignments/c34560e1adab441d96fe8cf7" --exemption-category "Waiver" --scope "/subscriptions/$subid"
+az policy exemption create --name "Allow Owner for Azure Decom Test AZ CLI" --display-name "Allow Owner For Azure Decom Test AZ CLI" --policy-assignment "/providers/Microsoft.Management/managementGroups/$management_group_id/providers/Microsoft.Authorization/policyAssignments/c34560e1adab441d96fe8cf7" --exemption-category "Waiver" --scope "/subscriptions/$subid"
 
 #Wait 5 seconds before executing the next script
 Start-Sleep -Seconds 5
