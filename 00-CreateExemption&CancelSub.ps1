@@ -1,6 +1,9 @@
 
 $user_object_id = "f7bb01c4-2b2b-4b76-b067-adc102c381de"
-$subid = "e2af6d23-4a34-4ffc-a6b5-24b197225321"
+$subid = $env:AZURE_SUBSCRIPTION_ID
+if ([string]::IsNullOrWhiteSpace($subid)) {
+    throw "AZURE_SUBSCRIPTION_ID is not set. Set this environment variable to the Azure subscription ID before running this script."
+}
 
 #Login 
 az login
